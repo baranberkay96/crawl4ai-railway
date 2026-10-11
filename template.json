@@ -1,0 +1,192 @@
+{
+  "name": "Crawl4AI v0.9 LLM-Ready Web Crawler",
+  "description": "Turn websites into clean markdown for LLMs with a headless browser.",
+  "category": "AI/ML",
+  "tags": [
+    "crawl4ai",
+    "crawler",
+    "scraper",
+    "markdown",
+    "llm",
+    "rag",
+    "mcp",
+    "playwright"
+  ],
+  "image": "https://cdn.jsdelivr.net/gh/unclecode/crawl4ai@v0.9.4/deploy/docker/static/assets/crawl4ai-logo.png",
+  "upstream": {
+    "repo": "unclecode/crawl4ai",
+    "version": "0.9.4 (unclecode/crawl4ai:0.9.4@sha256:9021b3cb5c6f12570bbcd5395638495e0a06969b3148e377b953d174af2ebc9b)",
+    "checked": "2026-10-11"
+  },
+  "services": {
+    "Crawl4AI": {
+      "icon": "https://cdn.jsdelivr.net/gh/unclecode/crawl4ai@v0.9.4/deploy/docker/static/assets/crawl4ai-logo.png",
+      "source": {
+        "repo": "baranberkay96/crawl4ai-railway",
+        "rootDirectory": "/services/crawl4ai"
+      },
+      "startCommand": null,
+      "preDeployCommand": null,
+      "healthcheckPath": "/health",
+      "healthcheckTimeout": 300,
+      "restartPolicyType": "ON_FAILURE",
+      "restartPolicyMaxRetries": 10,
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": true,
+      "targetPort": 11235,
+      "tcpProxy": null,
+      "volume": null,
+      "variables": {
+        "PORT": {
+          "defaultValue": "11235",
+          "description": "Port the Crawl4AI server listens on (gunicorn on all IPv4/IPv6 interfaces). Railway routes the domain and healthcheck here.",
+          "required": false
+        },
+        "CRAWL4AI_API_TOKEN": {
+          "defaultValue": "${{secret(64, \"abcdef0123456789\")}}",
+          "description": "Operator token for every endpoint except /health and the UI shells. Send it as 'Authorization: Bearer ...'. Without it the server only listens on loopback.",
+          "required": false
+        },
+        "SECRET_KEY": {
+          "defaultValue": "${{secret(64, \"abcdef0123456789\")}}",
+          "description": "Signs JWTs: the internal MCP tool calls and the short-lived client tokens issued by POST /token. Keep it stable; at least 32 characters.",
+          "required": false
+        },
+        "REDIS_HOST": {
+          "defaultValue": "${{Redis.REDISHOST}}",
+          "description": "Redis for job status/results and monitor stats (private network). Set to localhost to use the bundled in-container Redis instead.",
+          "required": false
+        },
+        "REDIS_PORT": {
+          "defaultValue": "${{Redis.REDISPORT}}",
+          "description": "Redis port.",
+          "required": false
+        },
+        "REDIS_PASSWORD": {
+          "defaultValue": "${{Redis.REDIS_PASSWORD}}",
+          "description": "Redis password (also protects the bundled loopback Redis).",
+          "required": false
+        },
+        "REDIS_TASK_TTL": {
+          "defaultValue": "3600",
+          "description": "Seconds that /crawl/job and /llm/job results stay retrievable in Redis.",
+          "required": false
+        },
+        "CRAWL4AI_MAX_PAGES": {
+          "defaultValue": "40",
+          "description": "Global cap on browser pages open at the same time (upstream default 40). Lower it to bound RAM; each page needs roughly 50-150 MB.",
+          "required": false
+        },
+        "CRAWL4AI_BROWSER_IDLE_TTL": {
+          "defaultValue": "300",
+          "description": "Seconds before an idle pooled browser is closed (upstream default 300). Lower values return RAM sooner after bursts.",
+          "required": false
+        },
+        "CRAWL4AI_MEMORY_THRESHOLD": {
+          "defaultValue": "95",
+          "description": "Container memory percent (cgroup-aware) above which no new browsers are started (upstream default 95).",
+          "required": false
+        },
+        "CRAWL4AI_JOB_WORKERS": {
+          "defaultValue": "4",
+          "description": "Concurrent background workers for /crawl/job and /llm/job (upstream default 4).",
+          "required": false
+        },
+        "CRAWL4AI_RATE_LIMIT": {
+          "defaultValue": "1000/minute",
+          "description": "API rate limit per client address, e.g. 1000/minute (upstream default).",
+          "required": false
+        },
+        "CRAWL4AI_CORS_ORIGINS": {
+          "defaultValue": "",
+          "description": "Optional comma-separated browser origins allowed to call the API directly (CORS is deny-by-default).",
+          "required": false
+        },
+        "LLM_PROVIDER": {
+          "defaultValue": "",
+          "description": "Optional default model for LLM extraction in LiteLLM provider/model form, e.g. anthropic/{model}. Empty = upstream default openai/gpt-4o-mini.",
+          "required": false
+        },
+        "OPENAI_API_KEY": {
+          "defaultValue": "",
+          "description": "Optional. Enables LLM extraction (/llm, /llm/job, LLM strategies) with OpenAI models. Plain crawling needs no key.",
+          "required": false
+        },
+        "ANTHROPIC_API_KEY": {
+          "defaultValue": "",
+          "description": "Optional. For anthropic/* models; also set LLM_PROVIDER.",
+          "required": false
+        },
+        "GEMINI_API_KEY": {
+          "defaultValue": "",
+          "description": "Optional. For gemini/* models; also set LLM_PROVIDER.",
+          "required": false
+        },
+        "RAILWAY_SHM_SIZE_BYTES": {
+          "defaultValue": "1073741824",
+          "description": "Shared memory (/dev/shm) for Chromium: 1 GiB, as upstream recommends (--shm-size=1g). Railway's default is 64 MB.",
+          "required": false
+        },
+        "RAILWAY_DEPLOYMENT_DRAINING_SECONDS": {
+          "defaultValue": "30",
+          "description": "Grace period on redeploy so running crawls can finish (matches gunicorn's 30 s graceful timeout).",
+          "required": false
+        }
+      }
+    },
+    "Redis": {
+      "icon": "https://cdn.sanity.io/images/sy1jschh/production/0ce0bfdcfbdbf69662b1116671f97c2dd788b655-157x157.svg",
+      "source": {
+        "image": "redis:8.2"
+      },
+      "startCommand": "/bin/sh -c \"rm -rf $RAILWAY_VOLUME_MOUNT_PATH/lost+found/ && exec docker-entrypoint.sh redis-server --requirepass $REDIS_PASSWORD --save 60 1 --dir $RAILWAY_VOLUME_MOUNT_PATH\"",
+      "preDeployCommand": null,
+      "healthcheckPath": null,
+      "healthcheckTimeout": null,
+      "restartPolicyType": "ON_FAILURE",
+      "restartPolicyMaxRetries": 10,
+      "numReplicas": 1,
+      "cronSchedule": null,
+      "publicDomain": false,
+      "targetPort": null,
+      "tcpProxy": null,
+      "volume": {
+        "mountPath": "/data"
+      },
+      "variables": {
+        "REDISHOST": {
+          "defaultValue": "${{RAILWAY_PRIVATE_DOMAIN}}",
+          "description": "Private network hostname of the Redis service, only resolvable from services in the same environment",
+          "required": true
+        },
+        "REDISPORT": {
+          "defaultValue": "6379",
+          "description": "Port that Redis listens on",
+          "required": true
+        },
+        "REDISUSER": {
+          "defaultValue": "default",
+          "description": "Username for authenticating with Redis",
+          "required": true
+        },
+        "REDIS_URL": {
+          "defaultValue": "redis://${{ REDISUSER }}:${{ REDIS_PASSWORD }}@${{ REDISHOST }}:${{ REDISPORT }}",
+          "description": "Connection string for connecting to Redis using the private network",
+          "required": true
+        },
+        "REDISPASSWORD": {
+          "defaultValue": "${{REDIS_PASSWORD}}",
+          "description": "Alias of REDIS_PASSWORD for clients that expect the unseparated name",
+          "required": true
+        },
+        "REDIS_PASSWORD": {
+          "defaultValue": "${{ secret(32, \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\") }}",
+          "description": "Randomly generated password for authenticating with Redis",
+          "required": true
+        }
+      }
+    }
+  },
+  "buckets": []
+}
