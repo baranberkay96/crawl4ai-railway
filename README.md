@@ -1,5 +1,7 @@
 # Deploy and Host Crawl4AI with Railway
 
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/crawl4ai-v09-llm-ready-web-crawler?referralCode=20H68q)
+
 Crawl4AI turns web pages into clean Markdown and structured data for LLMs, RAG pipelines and AI agents. This template runs the Crawl4AI 0.9 server with headless Chromium, a token-protected REST API, an MCP endpoint, the browser playground and monitoring dashboard, plus Redis for background job results.
 
 ## About Hosting Crawl4AI
