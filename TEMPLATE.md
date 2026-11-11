@@ -1,10 +1,10 @@
-# Crawl4AI v0.9 LLM-Ready Web Crawler: Railway template spec
+# Crawl4AI LLM-Ready Web Crawler: Railway template spec
 
 ## Listing
 
 | Field | Value |
 |---|---|
-| Name | **Crawl4AI v0.9 LLM-Ready Web Crawler** (LISTINGS_ROUND2 base name; 0.x release → major.minor label, project tags use `v`) |
+| Name | **Crawl4AI LLM-Ready Web Crawler** (LISTINGS_ROUND2 base name; 0.x release → major.minor label, project tags use `v`) |
 | Description | Turn websites into clean markdown for LLMs with a headless browser. (67 chars, unchanged) |
 | Category | AI/ML |
 | Tags | crawl4ai, crawler, scraper, markdown, llm, rag, mcp, playwright |

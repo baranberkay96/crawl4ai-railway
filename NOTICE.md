@@ -1,4 +1,4 @@
-# NOTICE: Crawl4AI v0.9 LLM-Ready Web Crawler template
+# NOTICE: Crawl4AI LLM-Ready Web Crawler template
 
 This product includes software developed by UncleCode (https://x.com/unclecode) as part of the Crawl4AI project (https://github.com/unclecode/crawl4ai).
 

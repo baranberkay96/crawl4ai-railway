@@ -1,5 +1,6 @@
 {
-  "name": "Crawl4AI v0.9 LLM-Ready Web Crawler",
+  "name": "Crawl4AI LLM-Ready Web Crawler",
+  "idSeed": "Crawl4AI v0.9 LLM-Ready Web Crawler",
   "description": "Turn websites into clean markdown for LLMs with a headless browser.",
   "category": "AI/ML",
   "tags": [
